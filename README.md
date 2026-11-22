@@ -1,5 +1,8 @@
 # sdm660-android-kernel
 
+> **AI disclosure:** this document was prepared by an AI agent (OpenHands) on behalf of INFIYOP. Verify anything before acting on it.
+
+
 Mainline Linux kernel (7.2.3) ported to run as an **Android** kernel on SDM636 devices.
 
 | Device | Codename | Status |

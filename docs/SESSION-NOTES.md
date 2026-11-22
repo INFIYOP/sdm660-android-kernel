@@ -1,3 +1,5 @@
+> **AI disclosure:** this document was prepared by an AI agent (OpenHands) on behalf of INFIYOP. Verify anything before acting on it.
+
 # Session notes — 2026-11-22
 
 Everything done in the session that produced `v7.2.3-sdm660-r1`, in order, with the

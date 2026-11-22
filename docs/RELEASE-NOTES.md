@@ -1,3 +1,5 @@
+> **AI disclosure:** this document was prepared by an AI agent (OpenHands) on behalf of INFIYOP. Verify anything before acting on it.
+
 # v7.2.3-sdm660-r1
 
 **First build release.** Mainline Linux 7.2.3 compiled as an Android kernel for

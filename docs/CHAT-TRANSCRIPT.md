@@ -1,3 +1,5 @@
+> **AI disclosure:** this document was prepared by an AI agent (OpenHands) on behalf of INFIYOP. Verify anything before acting on it.
+
 # Chat transcript — 2026-11-22
 
 Condensed transcript of the session that produced this repository and release.
