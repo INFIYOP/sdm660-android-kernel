@@ -1,0 +1,60 @@
+diff --git a/fs/sync.c b/fs/sync.c
+index 4a84dd837..34f313070 100644
+--- a/fs/sync.c
++++ b/fs/sync.c
+@@ -17,6 +17,7 @@
+ #include <linux/pagemap.h>
+ #include <linux/quotaops.h>
+ #include <linux/backing-dev.h>
++#include <linux/task_io_accounting_ops.h>
+ #include "internal.h"
+ 
+ #define VALID_FLAGS (SYNC_FILE_RANGE_WAIT_BEFORE|SYNC_FILE_RANGE_WRITE| \
+@@ -208,6 +209,7 @@ static int do_fsync(unsigned int fd, int datasync)
+ 	if (fd_empty(f))
+ 		return -EBADF;
+ 
++	inc_syscfs(current);
+ 	return vfs_fsync(fd_file(f), datasync);
+ }
+ 
+diff --git a/include/linux/task_io_accounting.h b/include/linux/task_io_accounting.h
+index 6f6acce06..172054ef6 100644
+--- a/include/linux/task_io_accounting.h
++++ b/include/linux/task_io_accounting.h
+@@ -19,6 +19,8 @@ struct task_io_accounting {
+ 	u64 syscr;
+ 	/* # of write syscalls */
+ 	u64 syscw;
++	/* # of fsync/fdatasync syscalls (Android uid_sys_stats) */
++	u64 syscfs;
+ #endif /* CONFIG_TASK_XACCT */
+ 
+ #ifdef CONFIG_TASK_IO_ACCOUNTING
+diff --git a/include/linux/task_io_accounting_ops.h b/include/linux/task_io_accounting_ops.h
+index bb5498bcd..f47ffbfdd 100644
+--- a/include/linux/task_io_accounting_ops.h
++++ b/include/linux/task_io_accounting_ops.h
+@@ -97,12 +97,22 @@ static inline void task_chr_io_accounting_add(struct task_io_accounting *dst,
+ 	dst->wchar += src->wchar;
+ 	dst->syscr += src->syscr;
+ 	dst->syscw += src->syscw;
++	dst->syscfs += src->syscfs;
++}
++
++static inline void inc_syscfs(struct task_struct *tsk)
++{
++	tsk->ioac.syscfs++;
+ }
+ #else
+ static inline void task_chr_io_accounting_add(struct task_io_accounting *dst,
+ 						struct task_io_accounting *src)
+ {
+ }
++
++static inline void inc_syscfs(struct task_struct *tsk)
++{
++}
+ #endif /* CONFIG_TASK_XACCT */
+ 
+ static inline void task_io_accounting_add(struct task_io_accounting *dst,

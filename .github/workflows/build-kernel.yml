@@ -1,0 +1,58 @@
+name: build-kernel
+
+on:
+  workflow_dispatch:
+  push:
+    tags: ['v*']
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Deps
+        # zstd and kmod are required: the defconfig enables CONFIG_MODULE_COMPRESS_ZSTD,
+        # so modules_install shells out to zstd and depmod. Without them the build
+        # dies with "Error 127" at the very end, after ~30 minutes of compiling.
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc-aarch64-linux-gnu flex bison bc \
+            libssl-dev libelf-dev device-tree-compiler zstd kmod
+
+      - name: Clone kernel
+        run: git clone --depth 1 --branch qcom-sdm660-7.2.y https://github.com/sdm660-mainline/linux.git linux
+
+      - name: Apply Android feature patches
+        run: |
+          cd linux
+          for p in ../patches/000*.patch; do git apply "$p"; done
+
+      - name: Build kernel, DTBs and modules
+        run: |
+          set -euo pipefail
+          export ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu-
+          cp configs/sdm660_android_defconfig linux/arch/arm64/configs/
+          cd linux
+          make sdm660_android_defconfig
+          make -j"$(nproc)" Image.gz modules
+          make -j"$(nproc)" qcom/sdm636-xiaomi-tulip.dtb \
+                            qcom/sdm636-xiaomi-whyred-tianma.dtb \
+                            qcom/sdm636-xiaomi-whyred-shenchao.dtb
+          mkdir -p "$GITHUB_WORKSPACE/out"
+          cp arch/arm64/boot/Image.gz "$GITHUB_WORKSPACE/out/"
+          cp arch/arm64/boot/dts/qcom/sdm636-xiaomi-*.dtb "$GITHUB_WORKSPACE/out/"
+          cp .config "$GITHUB_WORKSPACE/out/sdm660_android_defconfig.built"
+          make INSTALL_MOD_PATH="$GITHUB_WORKSPACE/out/modules" modules_install
+          depmod -b "$GITHUB_WORKSPACE/out/modules" "$(make -s kernelrelease)"
+          tar -C "$GITHUB_WORKSPACE/out" -cf "$GITHUB_WORKSPACE/out/modules.tar" modules
+          cat arch/arm64/boot/Image.gz arch/arm64/boot/dts/qcom/sdm636-xiaomi-tulip.dtb \
+            > "$GITHUB_WORKSPACE/out/Image.gz-dtb-tulip"
+
+      - name: Checksums
+        run: cd out && sha256sum Image.gz Image.gz-dtb-tulip *.dtb modules.tar sdm660_android_defconfig.built > SHA256SUMS
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: kernel-artifacts
+          path: out/
