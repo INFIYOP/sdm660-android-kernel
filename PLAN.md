@@ -1,5 +1,9 @@
 # Plan
 
+**Out of scope: Vulkan.** The a5xx GPU cannot exceed Vulkan 1.1 (see D003 in
+JOURNAL.md). Do not spend time on driver ports, version spoofs or vendor blob swaps;
+the graphics path is freedreno OpenGL via Mesa.
+
 ## Phase 0 - Setup  (gate: pmOS mainline kernel boots on tulip, ssh works)
 - Back up partitions (00-backup-partitions.sh): persist, modemst1/2, fsg, modem, dsp, bluetooth, boot, recovery.
 - Use `fastboot boot` for test kernels; never overwrite the working boot partition.

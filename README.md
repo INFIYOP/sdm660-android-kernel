@@ -87,9 +87,11 @@ Read `PLAN.md` and run the scripts in order. `scripts/00-backup-partitions.sh`
 first - it saves `persist`, `modemst1/2`, `fsg`, `modem`, `dsp`, `bluetooth`,
 `boot`, `recovery` over adb.
 
-## What this does *not* do
+## Scope
 
-It does not raise the Vulkan version. Adreno 509 (`a5xx`) tops out at Vulkan 1.1 in
-hardware; Mesa turnip targets `a6xx` and newer. Minecraft Java 26.2+ requires Vulkan
-1.2 and will keep falling back to OpenGL on these phones. See
-`docs/RELEASE-NOTES.md` for the full reasoning.
+**Vulkan is out of scope (decision D003).** Adreno 509 (`a5xx`) tops out at Vulkan 1.1 in
+hardware: 32-bit GPU VA blocks `bufferDeviceAddress` (Vulkan 1.2), there is no DP4A or
+subgroup-size control (1.3), no tile local read (1.4), and `libllvm-glnext` is a closed
+SPIR-V compiler. Mesa turnip targets `a6xx` and newer, so there is no path above 1.1.
+Freedreno **OpenGL** is the graphics path here. Minecraft Java 26.2+ requires Vulkan 1.2
+and will keep falling back to OpenGL on these phones. See `docs/RELEASE-NOTES.md`.

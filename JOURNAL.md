@@ -9,6 +9,10 @@
 ## Decisions
 - D001: Mainline port only, no backport of downstream 4.19.
 - D002: Android userspace is generic/open (Mesa, minigbm, drm_hwcomposer); reuse only firmware blobs.
+- D003: Vulkan work is DROPPED (2026-11-22). Adreno 509 is a5xx: 32-bit GPU VA blocks Vulkan 1.2
+  (bufferDeviceAddress), DP4A and subgroup-size control block 1.3, tile local read blocks 1.4, and the
+  SPIR-V->a5xx compiler (libllvm-glnext) is closed. Mesa turnip is a6xx+. No path to >1.1 exists, so
+  effort goes to the mainline Android bring-up instead. Freedreno OpenGL is the graphics path.
 
 ## Log
 - (date): Research done, plan written, Phase 0 kit created.
