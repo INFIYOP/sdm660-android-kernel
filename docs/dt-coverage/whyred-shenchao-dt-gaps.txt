@@ -1,0 +1,10 @@
+# Enabled DT nodes where NO compatible string maps to a module or a built-in OF alias.
+# Often fine (arch/core code, platform drivers matched by name, non-OF aliases). Review the rest.
+qcom,rpm-msg-ram	//soc@0/sram@778000
+qcom,sdm630-tcsr | syscon	//soc@0/syscon@1f60000
+qcom,pil-reloc-info	//soc@0/sram@146bf000/pil-reloc@94c
+qcom,fastrpc-compute-cb	//soc@0/remoteproc@15700000/glink-edge/fastrpc/compute-cb@3
+qcom,fastrpc-compute-cb	//soc@0/remoteproc@15700000/glink-edge/fastrpc/compute-cb@7
+qcom,fastrpc-compute-cb	//soc@0/remoteproc@15700000/glink-edge/fastrpc/compute-cb@8
+qcom,fastrpc-compute-cb	//soc@0/remoteproc@15700000/glink-edge/fastrpc/compute-cb@9
+xiaomi,whyred-shenchao | qcom,sdm636	/

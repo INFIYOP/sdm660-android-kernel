@@ -44,9 +44,14 @@ JOURNAL.md                   running log - update after every session
 docs/RELEASE-NOTES.md        release notes for v7.2.3-sdm660-r1
 docs/SESSION-NOTES.md        what was done, how, and what broke
 docs/CHAT-TRANSCRIPT.md      condensed transcript of the working session
+docs/COMPILE-AGENT-REPORT.md results of the v5 task list: lint, fetch, modules, checkpatch
+docs/FIRMWARE.md             firmware the mainline drivers ask for, and how to stage it
+docs/LK_IDS.md               bootloader IDs (blocked on a stock boot.img)
 patches/0001..0003           xt_quota2 (+LOG), uid_sys_stats, fsync counter
 configs/                     sdm660_android_defconfig, android-base-6.12, android-mainline.fragment
 dtbs/                        prebuilt DTBs for tulip / whyred
+android/device/generic/sdm660 AOSP device tree for tulip/whyred (source only, never built)
+tests/                       tests for the tooling (no real firmware)
 scripts/                     backup, postmarketOS bring-up, local build
 .github/workflows/           CI build
 ```

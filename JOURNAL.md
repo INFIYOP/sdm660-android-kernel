@@ -27,3 +27,20 @@
   Found and fixed two kit bugs: build-kernel.yml built/uploaded no modules although 532 options are =m
   (ipa, fastrpc, cpufreq-hw, qrtr, ath10k_snoc, q6v5_pas), and its apt list was missing zstd+kmod.
   Released as v7.2.3-sdm660-r1. STILL NOT BOOTED. boot.img still blocked on stock boot.img params.
+
+## 2026-11-23 - Android tree, module split, release review
+- Release v7.2.3-sdm660-r1 reviewed: SHA256SUMS fetched; DTB from the release is byte-identical to the one built here.
+- Boot-critical drivers (eMMC, USB, display, panel, clocks, pinctrl) are built in, so the ramdisk needs no modules.
+- Needed modules (enabled DT nodes via of: aliases + modules.dep): tulip 78, whyred 68. Too big for the 64 MB boot partition,
+  so all go to /vendor/lib/modules and are loaded by init.modules.rc (modprobe).
+- Every enabled tulip/whyred DT node has a driver (built-in or module); leftovers are child nodes of other drivers.
+- whyred mainline dts enables no sound card/codec: audio on whyred needs new dts work; tulip has it.
+- Mainline tulip/whyred DTBs have no qcom,msm-id/board-id, so LK may reject an appended-DTB boot image. BLOCKED on stock boot.img.
+- Android device tree source added at android/device/generic/sdm660 (derived from aospm/android_device_generic_sdm845). Source only, never built.
+- Added scripts/stage-firmware.sh + docs/FIRMWARE.md, and shared/bin/start_remoteprocs.sh.
+- Compile agent (OpenHands) ran docs/OPENHANDS_TASKS.md: merge done; bash -n 7/7; py_compile 4/4; shellcheck 0 errors
+  (1 mksh false positive + notes); fetch-prebuilt-kernel.sh 5/5 sha256, 83 modules, 181,681,771 B uncompressed;
+  select-modules re-run identical for tulip and docs/dt-coverage (whyred same 68 names, order only);
+  CI guard for modules.all added and tested both ways; checkpatch 0001 2E/12W, 0002 0E/6W, 0003 clean;
+  make W=1 0 compile diagnostics, 16 kernel-doc warnings in xt_quota2.c; tests/test-stage-firmware.sh added, PASS, in CI.
+  Details: docs/COMPILE-AGENT-REPORT.md. Nothing booted; AOSP build not attempted.

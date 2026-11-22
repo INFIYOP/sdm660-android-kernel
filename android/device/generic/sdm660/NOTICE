@@ -1,0 +1,3 @@
+This tree is derived from aospm/android_device_generic_sdm845 and includes third-party code under its own licences:
+shared/vendor/qrtr, rmtfs, pd-mapper, tqftpserv (BSD-3-Clause; see the LICENSE file in each directory); shared/hals (Apache-2.0).
+Board values were cross-checked against LineageOS android_device_xiaomi_sdm660-common (Apache-2.0).

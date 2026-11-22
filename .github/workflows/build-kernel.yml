@@ -18,7 +18,15 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y gcc-aarch64-linux-gnu flex bison bc \
-            libssl-dev libelf-dev device-tree-compiler zstd kmod
+            libssl-dev libelf-dev device-tree-compiler zstd kmod shellcheck
+
+      - name: Lint scripts and run tests
+        run: |
+          set -euo pipefail
+          bash -n scripts/*.sh
+          python3 -m py_compile scripts/*.py
+          shellcheck -S error scripts/*.sh android/device/generic/sdm660/shared/bin/*.sh
+          bash tests/test-stage-firmware.sh
 
       - name: Clone kernel
         run: git clone --depth 1 --branch qcom-sdm660-7.2.y https://github.com/sdm660-mainline/linux.git linux
@@ -48,6 +56,27 @@ jobs:
           tar -C "$GITHUB_WORKSPACE/out" -cf "$GITHUB_WORKSPACE/out/modules.tar" modules
           cat arch/arm64/boot/Image.gz arch/arm64/boot/dts/qcom/sdm636-xiaomi-tulip.dtb \
             > "$GITHUB_WORKSPACE/out/Image.gz-dtb-tulip"
+
+      - name: Verify device-tree module lists exist in modules.tar
+        run: |
+          set -euo pipefail
+          tmp="$(mktemp -d)"
+          tar -xf out/modules.tar -C "$tmp"
+          modroot="$(dirname "$(find "$tmp" -name modules.dep | head -1)")"
+          rc=0
+          for dev in tulip whyred; do
+            list="android/device/generic/sdm660/$dev/modules.all"
+            [ -f "$list" ] || continue
+            while read -r m; do
+              [ -n "$m" ] || continue
+              if ! find "$modroot/kernel" \( -name "$m.ko.zst" -o -name "$m.ko" \) | grep -q .; then
+                echo "::error file=$list::module '$m' required by $dev is missing from modules.tar"
+                rc=1
+              fi
+            done < "$list"
+          done
+          if [ "$rc" -eq 0 ]; then echo "all modules.all entries present in modules.tar"; fi
+          exit "$rc"
 
       - name: Checksums
         run: cd out && sha256sum Image.gz Image.gz-dtb-tulip *.dtb modules.tar sdm660_android_defconfig.built > SHA256SUMS

@@ -2,3 +2,7 @@ out/
 linux/
 *.img
 *.tar
+__pycache__/
+android/device/generic/sdm660/shared/prebuilt-kernel/android-mainline/Image.gz
+android/device/generic/sdm660/shared/prebuilt-kernel/android-mainline/*.dtb
+android/device/generic/sdm660/shared/prebuilt-kernel/android-mainline/modules/
