@@ -269,3 +269,87 @@ The middle is worth keeping because it is where the actual limits got establishe
    phones forever.
 4. **Mainline Linux is a separate, achievable goal** — it gives freedreno OpenGL and a
    maintainable kernel, and it builds cleanly. That is what this release ships.
+
+---
+
+# Session 2 — dropping Vulkan, merging v5, first testing build
+
+Same day, later. The conversation moved from "can we raise Vulkan" to "ship the
+mainline tree", which is where session 1's conclusions pointed.
+
+## Turn 14
+
+**User:**
+
+> Also we are developing ng mainline drop vulken for now
+
+**Assistant (summary):**
+
+- Read it as: new mainline drop, Vulkan dropped.
+- Recorded decision **D003** in `JOURNAL.md`: a5xx cannot exceed 1.1 — 32-bit GPU VA
+  blocks `bufferDeviceAddress`, no DP4A or subgroup-size control, no tile local read,
+  `libllvm-glnext` is closed, turnip is a6xx+. Freedreno OpenGL is the graphics path.
+- Rewrote the Vulkan sections of `README.md` and `PLAN.md` from "here is the upgrade
+  path" to "out of scope", so the next session does not re-litigate it.
+- Committed `0cc37eb` and dispatched CI to validate the workflow fixes.
+
+## Turn 15
+
+**User:**
+
+> NEW FILES ADDED: mainline-port-android-v5.zip
+> NEW FILES ADDED: mainline-port-android-v5.zip
+
+**Assistant (summary):**
+
+- Unpacked v5: an AOSP device tree for `tulip`/`whyred` (141 files), four scripts
+  (`fetch-prebuilt-kernel.sh`, `select-modules.py`, `stage-firmware.sh`,
+  `extract-lk-ids.py`), and `docs/FIRMWARE.md`, `LK_IDS.md`, `OPENHANDS_TASKS.md`,
+  `JOURNAL_APPEND.md`, `dt-coverage/`.
+- Ran the nine tasks in `OPENHANDS_TASKS.md`:
+  - merged without touching `patches/`, `configs/` or `scripts/00-02`;
+  - `bash -n` 7/7, `py_compile` 4/4, shellcheck 0 errors (one `$RANDOM` false positive
+    under mksh, plus notes);
+  - `fetch-prebuilt-kernel.sh`: 5/5 sha256, 83 modules, 181,681,771 B uncompressed;
+  - `select-modules.py` re-run matched the committed files (whyred differed in ordering
+    only);
+  - added a CI guard that fails when a `modules.all` name is missing from `modules.tar`,
+    tested positive and negative;
+  - verified the LK-id premise and left patch 0004 blocked on a stock `boot.img`;
+  - checkpatch 0001 2E/12W, 0002 0E/6W, 0003 clean; `make W=1` 0 compiler diagnostics,
+    16 kernel-doc warnings in `xt_quota2.c`;
+  - wrote `tests/test-stage-firmware.sh` (fake stock tree), passing and in CI.
+- Two CI runs went green. Report: `docs/COMPILE-AGENT-REPORT.md`.
+
+## Turn 16
+
+**User:**
+
+> Did you kernel build test and upload it on GitHub with the same way as last time
+
+**Assistant (summary):**
+
+- Answered plainly: built and tested yes, but in CI; released no.
+- Showed the state: three green runs, one Actions artifact, and a single release
+  (`v7.2.3-sdm660-r1`) whose tag points at `9a7e6a2`, i.e. before the v5 merge.
+- Explained why there was no local rebuild: the v5 drop changes no kernel source, so the
+  binaries are identical to r1.
+- Flagged that the CI artifact is 2.4 GB because `upload-artifact` follows the
+  `build`/`source` symlinks into the kernel tree.
+- Offered to cut a release.
+
+## Turn 17
+
+**User:**
+
+> These are in testing fase not release candidate
+>
+> Make a git release of the kernel v5 build with all info and this chat history
+
+**Assistant (summary):**
+
+- Verified the local artifacts against r1's published `SHA256SUMS` — all seven match
+  byte for byte, turning "the kernel did not change" into a measured fact.
+- Wrote `docs/RELEASE-NOTES-v5-testing.md`, extended this transcript with session 2, and
+  published `v5-testing` as a **pre-release**: testing phase, explicitly not a release
+  candidate.

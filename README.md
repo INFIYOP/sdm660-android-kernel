@@ -42,6 +42,7 @@ FINDINGS.md                  verified facts and config gotchas
 FEATURE_MATRIX.md            per-feature status table (fill in on hardware)
 JOURNAL.md                   running log - update after every session
 docs/RELEASE-NOTES.md        release notes for v7.2.3-sdm660-r1
+docs/RELEASE-NOTES-v5-testing.md  notes for the v5-testing pre-release
 docs/SESSION-NOTES.md        what was done, how, and what broke
 docs/CHAT-TRANSCRIPT.md      condensed transcript of the working session
 docs/COMPILE-AGENT-REPORT.md results of the v5 task list: lint, fetch, modules, checkpatch

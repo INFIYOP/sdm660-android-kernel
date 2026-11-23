@@ -51,9 +51,12 @@ jobs:
           cp arch/arm64/boot/Image.gz "$GITHUB_WORKSPACE/out/"
           cp arch/arm64/boot/dts/qcom/sdm636-xiaomi-*.dtb "$GITHUB_WORKSPACE/out/"
           cp .config "$GITHUB_WORKSPACE/out/sdm660_android_defconfig.built"
-          make INSTALL_MOD_PATH="$GITHUB_WORKSPACE/out/modules" modules_install
-          depmod -b "$GITHUB_WORKSPACE/out/modules" "$(make -s kernelrelease)"
-          tar -C "$GITHUB_WORKSPACE/out" -cf "$GITHUB_WORKSPACE/out/modules.tar" modules
+          # Install outside out/ and drop the build/source symlinks: upload-artifact
+          # follows them and would archive the whole kernel tree (2.4 GB instead of 196 MB).
+          make INSTALL_MOD_PATH="$RUNNER_TEMP/modules" modules_install
+          depmod -b "$RUNNER_TEMP/modules" "$(make -s kernelrelease)"
+          rm -f "$RUNNER_TEMP/modules/lib/modules/"*/build "$RUNNER_TEMP/modules/lib/modules/"*/source
+          tar -C "$RUNNER_TEMP" -cf "$GITHUB_WORKSPACE/out/modules.tar" modules
           cat arch/arm64/boot/Image.gz arch/arm64/boot/dts/qcom/sdm636-xiaomi-tulip.dtb \
             > "$GITHUB_WORKSPACE/out/Image.gz-dtb-tulip"
 
