@@ -5,6 +5,9 @@
 #   aosp_device_dir  default ./android/device/generic/sdm660   (or $AOSP/device/generic/sdm660)
 # Needs: curl, tar, zstd, sha256sum. Does not compile anything.
 set -euo pipefail
+for t in curl tar zstd sha256sum; do
+  command -v "$t" >/dev/null || { echo "missing dependency: $t" >&2; exit 1; }
+done
 TAG="${1:-v7.2.3-sdm660-r1}"
 DEV="${2:-android/device/generic/sdm660}"
 REPO="${REPO:-INFIYOP/sdm660-android-kernel}"

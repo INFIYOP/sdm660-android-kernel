@@ -207,3 +207,97 @@ It is wired into CI as the `Lint scripts and run tests` step.
 Open items: the stock `boot.img` for LK ids; a decision on the two tab-indent errors and
 the kernel-doc block in `xt_quota2.c`; and a preflight dependency check in
 `fetch-prebuilt-kernel.sh`.
+
+---
+
+# v7 drop — LK ids unblocked
+
+Your stock `boot.img` arrived at `/workspace/project/boot.img` (36,368,384 B). v7 adds
+patch 0004, `scripts/make-bootimg.sh`, `docs/STOCK_BOOT_PARAMS.md`, and updates
+`LK_IDS.md`, `OPENHANDS_TASKS.md`, `JOURNAL_APPEND.md`. `android/` is byte-identical to
+v5 (`diff -r` clean).
+
+## Task 6 — patch 0004 applied and verified
+
+Parsed the stock image with `extract-lk-ids.py`: **52 DTBs**, matching
+`STOCK_BOOT_PARAMS.md`. The two Xiaomi ones:
+
+| Stock DTB | model | msm-id | board-id |
+|---|---|---|---|
+| #43 @0x1e80a75 | SDM 636 PM660 + PM660L MTP **E7T** | `0x159 0x00` | `0x40008 0x00` |
+| #12 @0x158c09b | SDM 636 PM660 + PM660L **E7S** | `0x159 0x00` | `0x30008 0x00 0x10008 0x00` |
+
+`git apply --check` then `git apply` of `patches/0004-*.patch` on the kernel tree:
+clean. Rebuilt the three DTBs (`make qcom/sdm636-xiaomi-*.dtb`):
+
+| DTB | before | after |
+|---|---:|---:|
+| tulip | 58,610 | 58,733 |
+| whyred-tianma | 56,786 | 56,933 |
+| whyred-shenchao | 56,786 | 56,933 |
+
+`extract-lk-ids.py` on each rebuilt DTB reports exactly the stock values above, including
+the full `pmic-id` lists. Values were not altered.
+
+## Task 10 — test boot images
+
+No postmarketOS initramfs exists in this environment, so I built a **minimal** one rather
+than pretend: `tests/minimal-initramfs/init.c`, a static init that mounts
+devtmpfs/proc/sys, prints `MAINLINE BOOT OK`, and powers off. 758,984 B binary,
+325,505 B `cpio.gz`. It is labelled as not-postmarketOS everywhere it appears.
+
+`scripts/make-bootimg.sh` (mkbootimg from Debian's `mkbootimg` package) produced:
+
+| Image | Bytes | Header |
+|---|---:|---|
+| `boot-tulip-test.img` | 13,836,288 | page 4096, kernel `0x8000`, ramdisk `0x01000000`, tags `0x100`, v0 |
+| `boot-whyred-test.img` | 13,832,192 | same (tianma DTB) |
+
+Parsed the `ANDROID!` header of both to confirm those fields, and re-ran
+`extract-lk-ids.py` on `boot-tulip-test.img` — the appended DTB carries the IDs.
+CI now builds and checksums both images.
+
+## Task 11 — source fixes
+
+**Preflight** in `fetch-prebuilt-kernel.sh`. Negative test with a PATH lacking `zstd`:
+
+```
+missing dependency: zstd
+exit=1
+```
+
+**kernel-doc** in patch 0001: gave `struct xt_quota_counter` a proper short description
+and documented all six members; `q2_get_counter` now documents `@q` instead of a
+non-existent `@name`.
+
+```
+kernel-doc warnings before: 16
+kernel-doc warnings after:   0
+```
+
+Regenerated the patch with `git diff` and verified it applies to a pristine tree
+(`git apply --check` after reverting Kconfig/Makefile and deleting the new files), then
+reproduced the edited files byte for byte.
+
+Proving the comment edit cannot change the shipped kernel: rebuilt `xt_quota2.o` and
+compared every code section against the pre-edit object.
+
+```
+.text: identical (2348 B)   .rodata: identical (196 B)
+.data: identical (28 B)     .init.text: identical (288 B)
+only .debug_info grew: 0x2118a -> 0x2118c
+```
+
+So `Image.gz` is unchanged, and it is shipped unchanged.
+
+## Checks re-run
+
+- `bash -n` 6/6 scripts OK; `python3 -m py_compile` OK.
+- shellcheck (0.10.0) on `scripts/*.sh`: 3 notes (SC2012, SC2015, SC2035), **0 warnings,
+  0 errors**. Nothing rewritten.
+- `select-modules.py`: not re-run — no kernel config changed. `modules.all` and
+  `docs/dt-coverage/*` are unchanged, which is why `modules.tar` is the same file.
+
+## Not done
+
+AOSP build (by instruction), anything on hardware. `FEATURE_MATRIX.md` remains untested.

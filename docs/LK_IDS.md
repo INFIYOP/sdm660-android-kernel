@@ -1,5 +1,8 @@
 # Bootloader IDs (qcom,msm-id / qcom,board-id)
 
+**UPDATE 2026-11-23: resolved on paper.** Values extracted from the uploaded stock boot.img are in docs/STOCK_BOOT_PARAMS.md and applied by patches/0004. Still unproven on hardware: whether LK accepts the resulting DTB.
+
+
 Verified: the mainline `sdm636-xiaomi-tulip.dtb` from release v7.2.3-sdm660-r1 contains NO `qcom,msm-id`, `qcom,board-id` or
 `qcom,pmic-id` property (scripts/extract-lk-ids.py reports `-` for all three).
 

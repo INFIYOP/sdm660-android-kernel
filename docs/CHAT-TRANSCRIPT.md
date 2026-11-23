@@ -353,3 +353,26 @@ mainline tree", which is where session 1's conclusions pointed.
 - Wrote `docs/RELEASE-NOTES-v5-testing.md`, extended this transcript with session 2, and
   published `v5-testing` as a **pre-release**: testing phase, explicitly not a release
   candidate.
+
+## Turn 18
+
+**User:**
+
+> also i have put the boot image in you directorey
+>
+> NEW FILES ADDED: mainline-port-android-v7 (1).zip
+
+**Assistant (summary):**
+
+- Found `/workspace/project/boot.img` (the earlier search had run before the upload).
+- Parsed it: 52 appended DTBs; E7T (#43) `board-id 0x40008 0x00`, E7S (#12)
+  `board-id 0x30008 0x00 0x10008 0x00`, both `msm-id 0x159 0x00` — matching
+  `docs/STOCK_BOOT_PARAMS.md` exactly, so the values were not taken on trust.
+- Merged v7 (android/ byte-identical to v5), applied patch 0004, rebuilt the three DTBs and
+  confirmed each now carries the ids.
+- Built `boot-tulip-test.img` and `boot-whyred-test.img` with a minimal static initramfs,
+  labelled as not-postmarketOS, and verified the `ANDROID!` header against the stock layout.
+- Fixed the `xt_quota2.c` kernel-doc (16 → 0 warnings) and proved the change cannot alter
+  codegen: every code section of the rebuilt object is identical.
+- Added the fetch-script dependency preflight and tested it negatively.
+- Published `v7-testing` as a pre-release.

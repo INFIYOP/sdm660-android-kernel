@@ -1,0 +1,47 @@
+From: INFIYOP port <noreply@example.invalid>
+Subject: [PATCH 0004] arm64: dts: qcom: add bootloader msm-id/board-id/pmic-id for tulip and whyred
+
+Values are copied verbatim from the stock boot.img DTBs (E7T = tulip, E7S = whyred).
+The E7T/E7S mapping rests on the Xiaomi model numbers M1806E7T / M1803E7S; verify on your phone.
+---
+diff --git a/arch/arm64/boot/dts/qcom/sdm636-xiaomi-tulip.dts b/arch/arm64/boot/dts/qcom/sdm636-xiaomi-tulip.dts
+index a1eea632d..0147d6e67 100644
+--- a/arch/arm64/boot/dts/qcom/sdm636-xiaomi-tulip.dts
++++ b/arch/arm64/boot/dts/qcom/sdm636-xiaomi-tulip.dts
+@@ -21,6 +21,15 @@ / {
+ 	compatible = "xiaomi,tulip", "qcom,sdm636";
+ 	chassis-type = "handset";
+ 
++	/*
++	 * Bootloader (LK) selection IDs, copied verbatim from the stock DTB "SDM 636 PM660 + PM660L MTP E7T"
++	 * (Redmi Note 6 Pro, model M1806E7T) found in the stock boot.img. Without them LK may refuse an appended DTB.
++	 */
++	qcom,msm-id = <0x159 0x00>;
++	qcom,board-id = <0x40008 0x00>;
++	qcom,pmic-id = <0x1001b 0x101011a 0x00 0x00
++			0x1001b 0x201011a 0x00 0x00>;
++
+ 	aliases {
+ 		serial0 = &blsp1_uart2; /* Debug UART */
+ 		serial1 = &blsp2_uart1; /* Bluetooth UART */
+diff --git a/arch/arm64/boot/dts/qcom/sdm636-xiaomi-whyred-common.dtsi b/arch/arm64/boot/dts/qcom/sdm636-xiaomi-whyred-common.dtsi
+index 0623dc81f..2c10df117 100644
+--- a/arch/arm64/boot/dts/qcom/sdm636-xiaomi-whyred-common.dtsi
++++ b/arch/arm64/boot/dts/qcom/sdm636-xiaomi-whyred-common.dtsi
+@@ -17,6 +17,16 @@
+ / {
+ 	chassis-type = "handset";
+ 
++	/*
++	 * Bootloader (LK) selection IDs, copied verbatim from the stock DTB "SDM 636 PM660 + PM660L E7S"
++	 * (Redmi Note 5 Pro, model M1803E7S) found in a stock boot.img. Shared by both panel variants.
++	 */
++	qcom,msm-id = <0x159 0x00>;
++	qcom,board-id = <0x30008 0x00 0x10008 0x00>;
++	qcom,pmic-id = <0x1001b 0x101011a 0x00 0x00
++			0x1001b 0x201011a 0x00 0x00
++			0x1001b 0x102001a 0x00 0x00>;
++
+ 	aliases {
+ 		serial0 = &blsp1_uart2; /* Debug UART */
+ 		serial1 = &blsp2_uart1; /* Bluetooth UART */

@@ -44,3 +44,16 @@
   CI guard for modules.all added and tested both ways; checkpatch 0001 2E/12W, 0002 0E/6W, 0003 clean;
   make W=1 0 compile diagnostics, 16 kernel-doc warnings in xt_quota2.c; tests/test-stage-firmware.sh added, PASS, in CI.
   Details: docs/COMPILE-AGENT-REPORT.md. Nothing booted; AOSP build not attempted.
+
+## 2026-11-23 - v7: bootloader ids, test boot images
+- User's stock boot.img parsed (36,368,384 B, 52 DTBs). E7T = tulip: msm-id 0x159 0x00, board-id 0x40008 0x00.
+  E7S = whyred: board-id 0x30008 0x00 0x10008 0x00. pmic-id copied verbatim. E7T/E7S mapping is an
+  inference from Xiaomi model numbers - verify with getprop ro.product.model.
+- Patch 0004 applied cleanly; DTBs rebuilt (tulip 58,733, whyred 56,933) and each reports the stock ids.
+- Added scripts/make-bootimg.sh + boot-tulip-test.img / boot-whyred-test.img (header v0, page 4096,
+  kernel 0x8000, ramdisk 0x1000000). Ramdisk is a minimal static init, NOT postmarketOS: it only proves
+  LK accepted the DTB and the kernel reached userspace.
+- Fixed kernel-doc in patch 0001 (16 warnings -> 0) and regenerated the patch; code sections of
+  xt_quota2.o identical, only .debug_info +2 B, so Image.gz is unchanged and shipped unchanged.
+- Added a dependency preflight to fetch-prebuilt-kernel.sh (fails before downloading).
+- CI builds both boot images and checksums them.

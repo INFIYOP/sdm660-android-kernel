@@ -18,7 +18,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y gcc-aarch64-linux-gnu flex bison bc \
-            libssl-dev libelf-dev device-tree-compiler zstd kmod shellcheck
+            libssl-dev libelf-dev device-tree-compiler zstd kmod shellcheck cpio mkbootimg
 
       - name: Lint scripts and run tests
         run: |
@@ -81,8 +81,23 @@ jobs:
           if [ "$rc" -eq 0 ]; then echo "all modules.all entries present in modules.tar"; fi
           exit "$rc"
 
+      - name: Build test boot images
+        run: |
+          set -euo pipefail
+          # Minimal initramfs: proves LK accepts the appended DTB and the kernel
+          # reaches userspace. It is not postmarketOS and not Android.
+          mkdir -p out/initramfs
+          gcc -static -Os -o out/initramfs/init tests/minimal-initramfs/init.c
+          (cd out/initramfs && find . | cpio -o -H newc | gzip -9) > out/initramfs.cpio.gz
+          bash scripts/make-bootimg.sh --kernel out/Image.gz \
+            --dtb out/sdm636-xiaomi-tulip.dtb --ramdisk out/initramfs.cpio.gz \
+            --out out/boot-tulip-test.img
+          bash scripts/make-bootimg.sh --kernel out/Image.gz \
+            --dtb out/sdm636-xiaomi-whyred-tianma.dtb --ramdisk out/initramfs.cpio.gz \
+            --out out/boot-whyred-test.img
+
       - name: Checksums
-        run: cd out && sha256sum Image.gz Image.gz-dtb-tulip *.dtb modules.tar sdm660_android_defconfig.built > SHA256SUMS
+        run: cd out && sha256sum Image.gz Image.gz-dtb-tulip *.dtb modules.tar sdm660_android_defconfig.built boot-*-test.img > SHA256SUMS
 
       - uses: actions/upload-artifact@v4
         with:
