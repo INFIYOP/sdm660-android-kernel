@@ -30,6 +30,7 @@ This is the first build whose DTBs carry the bootloader IDs, and the first that 
 | **`xt_quota2.c` kernel-doc fixed** | `struct xt_quota_counter` documented properly, `q2_get_counter` params corrected. kernel-doc warnings: 16 → **0**. |
 | **Fetch script preflight** | Fails immediately with `missing dependency: zstd` instead of after a 200 MB download. |
 | **CI builds boot images** | Per-device `boot-*-test.img` now built and checksummed on every run. |
+| **Portable boot packer** | `scripts/pack-bootimg.py` — `make-bootimg.sh` falls back to it when the distro `mkbootimg` is unusable (Ubuntu's imports a `gki` module it does not ship). Output verified byte-identical. |
 
 `Image.gz` and `modules.tar` are **unchanged** from v5-testing. Patch 0004 touches only
 DTS files, and the 0001 edit is comments only — verified by rebuilding the object and

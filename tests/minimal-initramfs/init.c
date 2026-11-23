@@ -25,7 +25,8 @@ if (fd >= 0) {
 dprintf(fd, "\nMAINLINE BOOT OK - kernel reached userspace\n");
 close(fd);
 }
-write(1, "MAINLINE BOOT OK\n", 17);
+/* return value deliberately ignored: stdout may already be /dev/console */
+	write(1, "MAINLINE BOOT OK\n", 17);
 
 sync();
 sleep(2);

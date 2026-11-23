@@ -376,3 +376,10 @@ mainline tree", which is where session 1's conclusions pointed.
   codegen: every code section of the rebuilt object is identical.
 - Added the fetch-script dependency preflight and tested it negatively.
 - Published `v7-testing` as a pre-release.
+
+## Postscript (no user turn)
+
+The first v7 CI run (45122775169) failed at the boot-image step: Ubuntu's `mkbootimg`
+imports a `gki` module its package does not ship. Added `scripts/pack-bootimg.py` and a
+fallback in `make-bootimg.sh`; the output is byte-identical to what `mkbootimg` produced
+(same sha256 as the published asset). CI re-run on the moved tag.

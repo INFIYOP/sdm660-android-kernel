@@ -301,3 +301,23 @@ So `Image.gz` is unchanged, and it is shipped unchanged.
 ## Not done
 
 AOSP build (by instruction), anything on hardware. `FEATURE_MATRIX.md` remains untested.
+
+## CI failure on the first v7 run, and the fix
+
+Run [45122775169](https://github.com/INFIYOP/sdm660-android-kernel/actions/runs/45122775169):
+build, module guard and lint all passed, then `Build test boot images` failed.
+
+```
+File "/usr/bin/mkbootimg", line 31, in <module>
+    from gki.generate_gki_certificate import generate_gki_certificate
+ModuleNotFoundError: No module named 'gki'
+```
+
+Ubuntu's `mkbootimg` is a Python wrapper that imports a module its package does not ship.
+Debian's is self-contained, which is why the same command worked locally. Added
+`scripts/pack-bootimg.py` (header v0 only) and a fallback in `make-bootimg.sh`.
+
+Verified byte-identical rather than assumed: with the same inputs, `mkbootimg` and the
+packer produce the same file, and that file hashes to the already-published
+`boot-tulip-test.img` (`7b249b20…`). Re-ran `make-bootimg.sh` with `mkbootimg` removed from
+`PATH` — same hash again.

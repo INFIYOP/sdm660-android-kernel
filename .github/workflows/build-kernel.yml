@@ -87,7 +87,7 @@ jobs:
           # Minimal initramfs: proves LK accepts the appended DTB and the kernel
           # reaches userspace. It is not postmarketOS and not Android.
           mkdir -p out/initramfs
-          gcc -static -Os -o out/initramfs/init tests/minimal-initramfs/init.c
+          gcc -static -Os -Wno-unused-result -o out/initramfs/init tests/minimal-initramfs/init.c
           (cd out/initramfs && find . | cpio -o -H newc | gzip -9) > out/initramfs.cpio.gz
           bash scripts/make-bootimg.sh --kernel out/Image.gz \
             --dtb out/sdm636-xiaomi-tulip.dtb --ramdisk out/initramfs.cpio.gz \

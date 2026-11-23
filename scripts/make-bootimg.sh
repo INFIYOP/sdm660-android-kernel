@@ -19,6 +19,13 @@ cat "$KERNEL" "$DTB" > "$TMP/kernel-dtb"
 args=(--kernel "$TMP/kernel-dtb" --base "$BASE" --pagesize "$PAGESIZE" --kernel_offset "$KERNEL_OFFSET"
       --ramdisk_offset "$RAMDISK_OFFSET" --tags_offset "$TAGS_OFFSET" --cmdline "$CMDLINE" --header_version 0 -o "$OUT")
 [ -n "$RAMDISK" ] && args+=(--ramdisk "$RAMDISK")
-mkbootimg "${args[@]}"
+if mkbootimg --help >/dev/null 2>&1; then
+  mkbootimg "${args[@]}"
+else
+  # Ubuntu's mkbootimg is a Python wrapper that imports a `gki` module it does not
+  # ship, so it dies on import. pack-bootimg.py produces byte-identical output.
+  echo "mkbootimg unusable here; falling back to scripts/pack-bootimg.py"
+  python3 "$(dirname "$0")/pack-bootimg.py" "${args[@]}"
+fi
 echo "wrote $OUT. Test with: fastboot boot $OUT   (does not touch your boot partition)"
 echo "NOTE: use a DTB built WITH patch 0004 (bootloader ids). Check: python3 scripts/extract-lk-ids.py <dtb> shows non-empty msm-id/board-id."
