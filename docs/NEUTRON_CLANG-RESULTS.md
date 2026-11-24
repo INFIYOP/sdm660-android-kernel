@@ -95,3 +95,20 @@ that it does not write; the real name is `dt-gaps.txt`. Docstring corrected.
 - `out-neutron/clang-warnings.txt` from the full build was overwritten by the
   incremental re-run that finished `modules.tar` after `depmod` was installed; the
   warning counts above were taken from the complete log before that.
+
+## Reproduced in CI
+
+Run [45341239698](https://github.com/INFIYOP/sdm660-android-kernel/actions/runs/45341239698)
+(`build-kernel-neutron`, ubuntu-24.04, workflow_dispatch) passed every step: Neutron
+install via `antman`, clang build, boot images, verification, checksums, artifact.
+
+```
+CONFIG_CC_IS_CLANG=y   CONFIG_LD_IS_LLD=y   CONFIG_SHADOW_CALL_STACK=y
+distinct warning kinds: 0
+Image.gz 13,240,598 B
+boot-tulip-test.img   qcom,board-id = <0x40008 0x0>              PASS
+boot-whyred-test.img  qcom,board-id = <0x30008 0x0 0x10008 0x0>   PASS
+```
+
+The 26-byte difference from the local build is the build timestamp in the version
+string; nothing else differs.
