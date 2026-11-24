@@ -321,3 +321,26 @@ Verified byte-identical rather than assumed: with the same inputs, `mkbootimg` a
 packer produce the same file, and that file hashes to the already-published
 `boot-tulip-test.img` (`7b249b20…`). Re-ran `make-bootimg.sh` with `mkbootimg` removed from
 `PATH` — same hash again.
+
+---
+
+# v9 — Neutron Clang
+
+Neutron tag `06092026`, clang 24.0.0git (kernel needs >= 17.0.1). Built in a fresh
+clone with `LLVM=1`; the GCC tree was left alone. Full results in
+`docs/NEUTRON_CLANG-RESULTS.md`.
+
+- `CONFIG_CC_IS_CLANG=y`, `LD_IS_LLD=y`, `AS_IS_LLVM=y`, `SHADOW_CALL_STACK=y`,
+  `LTO_NONE=y`. The long-unmet `LD_IS_LLD` is now satisfied.
+- Build passed: 0 warnings, 0 errors. `W=1` rebuild of `xt_quota2.o`,
+  `uid_sys_stats.o`, `fs/sync.o`: 0 warnings.
+- `Image.gz` 13,240,624 B, 202,753 B (1.5%) smaller than GCC. 688 modules, module sets
+  identical to `modules.all` (78 tulip / 68 whyred), so no re-selection was needed.
+- Both boot images verify: appended DTB carries the stock ids, kernel area matches
+  `Image.gz`.
+
+Two gaps in the archive: `scripts/verify-bootimg.py` was referenced by the workflow but
+absent (written here, with a negative test), and `select-modules.py` documents an output
+file it does not write (docstring fixed).
+
+Nothing booted. ThinLTO not attempted.

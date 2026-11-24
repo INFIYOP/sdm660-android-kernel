@@ -57,3 +57,15 @@
   xt_quota2.o identical, only .debug_info +2 B, so Image.gz is unchanged and shipped unchanged.
 - Added a dependency preflight to fetch-prebuilt-kernel.sh (fails before downloading).
 - CI builds both boot images and checksums them.
+
+## 2026-11-24 - v9: Neutron Clang build
+- Neutron tag 06092026 / clang 24.0.0git via antman. Build with LLVM=1 in a fresh clone
+  (/workspace/kbuild/linux-clang) so the GCC tree stayed intact.
+- CC_IS_CLANG=y, LD_IS_LLD=y, AS_IS_LLVM=y, SHADOW_CALL_STACK=y, LTO_NONE=y.
+- 0 warnings, 0 errors; W=1 on xt_quota2/uid_sys_stats/fs/sync also 0.
+- Image.gz 13,240,624 B (GCC 13,443,377). 688 modules; select-modules output identical
+  to the committed modules.all (78 tulip, 68 whyred).
+- Both boot images PASS verify-bootimg.py with the stock msm-id/board-id.
+- v9 archive referenced scripts/verify-bootimg.py but did not ship it; wrote it (pure
+  Python FDT parse, no dtc dependency).
+- Neutron installer needs zstd and bsdtar on the host; kernel build needs flex/bison/bc.

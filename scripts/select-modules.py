@@ -4,7 +4,7 @@
 usage: select-modules.py --modroot <.../lib/modules/X> --dtb <file.dtb> [--out outdir]
 Needs: dtc, zstd (if modules are .ko.zst), modinfo (kmod).
 Matches 'of:' module aliases against compatible strings of ENABLED dts nodes, then adds dependencies from modules.dep.
-Writes: needed-modules.txt (names), needed-modules-sizes.txt, unmatched-dt-compatibles.txt
+Writes: needed-modules.txt (names), needed-modules-sizes.txt, dt-gaps.txt
 """
 import argparse, os, re, subprocess, sys, tempfile, collections
 

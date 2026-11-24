@@ -1,0 +1,61 @@
+name: build-kernel-neutron
+
+# Release-style build with Neutron Clang (LLVM=1). The GCC workflow stays the quick iteration build.
+# Requires the earlier fix archive (scripts/verify-bootimg.py, aarch64 test init) to be merged first.
+on:
+  workflow_dispatch:
+    inputs:
+      neutron_tag:
+        description: "Neutron release tag to pin (empty = latest)"
+        required: false
+        default: ""
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Deps
+        # gcc-aarch64-linux-gnu is only for the userspace test init; the KERNEL is built by clang.
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc-aarch64-linux-gnu flex bison bc libssl-dev libelf-dev \
+            device-tree-compiler zstd kmod cpio mkbootimg libarchive-tools curl xz-utils git python3
+
+      - name: Clone kernel
+        run: git clone --depth 1 --branch qcom-sdm660-7.2.y https://github.com/sdm660-mainline/linux.git linux
+
+      - name: Set up Neutron Clang
+        env:
+          NEUTRON_TAG: ${{ inputs.neutron_tag }}
+        run: bash scripts/setup-neutron-clang.sh linux
+
+      - name: Build kernel, DTBs and modules with clang
+        run: bash scripts/build-kernel-clang.sh
+
+      - name: Build test boot images
+        run: |
+          set -euo pipefail
+          mkdir -p out-neutron/initramfs
+          aarch64-linux-gnu-gcc -static -Os -Wno-unused-result -o out-neutron/initramfs/init tests/minimal-initramfs/init.c
+          (cd out-neutron/initramfs && find . | cpio -o -H newc | gzip -9) > out-neutron/initramfs.cpio.gz
+          bash scripts/make-bootimg.sh --kernel out-neutron/Image.gz --dtb out-neutron/sdm636-xiaomi-tulip.dtb \
+            --ramdisk out-neutron/initramfs.cpio.gz --out out-neutron/boot-tulip-test.img
+          bash scripts/make-bootimg.sh --kernel out-neutron/Image.gz --dtb out-neutron/sdm636-xiaomi-whyred-tianma.dtb \
+            --ramdisk out-neutron/initramfs.cpio.gz --out out-neutron/boot-whyred-test.img
+
+      - name: Verify test boot images
+        run: |
+          set -euo pipefail
+          python3 scripts/verify-bootimg.py out-neutron/boot-tulip-test.img --image out-neutron/Image.gz --expect-msm-id 0x159 --expect-board-id 0x40008
+          python3 scripts/verify-bootimg.py out-neutron/boot-whyred-test.img --image out-neutron/Image.gz --expect-msm-id 0x159 --expect-board-id 0x30008
+
+      - name: Checksums
+        run: cd out-neutron && sha256sum Image.gz Image.gz-dtb-tulip *.dtb modules.tar sdm660_android_defconfig.built boot-*-test.img > SHA256SUMS
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: kernel-artifacts-neutron
+          path: out-neutron/

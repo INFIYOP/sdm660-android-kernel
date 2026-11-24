@@ -1,0 +1,5 @@
+# OPTIONAL, second step only. First get a plain clang build (LTO_NONE) booting; then try this.
+# Merge after sdm660_android_defconfig:  scripts/kconfig/merge_config.sh -m .config configs/neutron-lto-thin.fragment
+# ThinLTO makes link time and memory much larger and can expose new problems in the ported patches.
+CONFIG_LTO_NONE=n
+CONFIG_LTO_CLANG_THIN=y
