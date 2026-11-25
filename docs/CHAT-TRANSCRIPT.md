@@ -426,7 +426,7 @@ fallback in `make-bootimg.sh`; the output is byte-identical to what `mkbootimg` 
   DTBs hash identically to v9, which shows only tulip was affected.
 - Decompiled the built DTBs and confirmed the new ramoops values, built both boot images
   and confirmed both PASS `verify-bootimg.py` with the stock LK ids.
-- Ran both CI workflows: `build-kernel-neutron` (45538359182) succeeded and reproduced the
-  build; `build-kernel` (45538355221) is the GCC check.
+- Ran both CI workflows: `build-kernel-neutron` (45538359182) reproduced the clang build and
+  `build-kernel` (45538355221) passed the GCC build, both on the same commit.
 - Published `v10-testing` as a **pre-release**, with the build assets, release notes,
   first-boot procedure and this transcript.

@@ -84,8 +84,10 @@ The ramdisk `init` was built with `aarch64-linux-gnu-gcc -static -Os` (ELF class
 machine `0xb7`).
 
 CI run [45538359182](https://github.com/INFIYOP/sdm660-android-kernel/actions/runs/45538359182)
-reproduced the build from a clean clone: 0 warnings, both boot images PASS,
-`Image.gz` 13,240,597 B (timestamp-only difference from the local build).
+reproduced the clang build from a clean clone: 0 warnings, both boot images PASS,
+`Image.gz` 13,240,597 B (timestamp-only difference from the local build). The GCC workflow
+([45538355221](https://github.com/INFIYOP/sdm660-android-kernel/actions/runs/45538355221))
+also passed on the same commit.
 
 ## How to test
 
