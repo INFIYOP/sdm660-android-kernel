@@ -13,7 +13,7 @@ while [ $# -gt 0 ]; do case "$1" in
 [ -f "$KERNEL" ] && [ -f "$DTB" ] || { echo "need --kernel and --dtb files"; exit 2; }
 BASE="${BASE:-0x00000000}"; PAGESIZE="${PAGESIZE:-4096}"; KERNEL_OFFSET="${KERNEL_OFFSET:-0x00008000}"
 RAMDISK_OFFSET="${RAMDISK_OFFSET:-0x01000000}"; TAGS_OFFSET="${TAGS_OFFSET:-0x00000100}"
-CMDLINE="${CMDLINE:-console=tty0 no_console_suspend printk.devkmsg=on deferred_probe_timeout=30}"
+CMDLINE="${CMDLINE:-console=tty0 no_console_suspend printk.devkmsg=on ignore_loglevel panic=5 deferred_probe_timeout=30}"
 TMP="$(mktemp -d)"; trap 'rm -rf "$TMP"' EXIT
 cat "$KERNEL" "$DTB" > "$TMP/kernel-dtb"
 args=(--kernel "$TMP/kernel-dtb" --base "$BASE" --pagesize "$PAGESIZE" --kernel_offset "$KERNEL_OFFSET"

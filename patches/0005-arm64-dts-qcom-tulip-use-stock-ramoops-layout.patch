@@ -1,0 +1,26 @@
+From: INFIYOP port <noreply@example.invalid>
+Subject: [PATCH 0005] arm64: dts: qcom: tulip: use the stock ramoops layout so pstore can be read across kernels
+
+The stock E7T/E7S DTBs and the mainline whyred dtsi use console-size 0x200000, pmsg-size 0x200000 and no dmesg records
+at the same 0xa0000000 region. Tulip used 128 KiB buffers plus dmesg records, so a 4.19 kernel reading the region
+looked in the wrong place. With the same layout the normal OS can read the mainline kernel log after a warm reboot.
+---
+diff --git a/arch/arm64/boot/dts/qcom/sdm636-xiaomi-tulip.dts b/arch/arm64/boot/dts/qcom/sdm636-xiaomi-tulip.dts
+index a1eea632d..8ae9b46f9 100644
+--- a/arch/arm64/boot/dts/qcom/sdm636-xiaomi-tulip.dts
++++ b/arch/arm64/boot/dts/qcom/sdm636-xiaomi-tulip.dts
+@@ -96,10 +96,10 @@ reserved-memory {
+ 		ramoops@a0000000 {
+ 			compatible = "ramoops";
+ 			reg = <0x0 0xa0000000 0x0 0x400000>;
+-			console-size = <0x20000>;
+-			record-size = <0x20000>;
+-			ftrace-size = <0x0>;
+-			pmsg-size = <0x20000>;
++			console-size = <0x200000>;
++			record-size = <0>;
++			ftrace-size = <0>;
++			pmsg-size = <0x200000>;
+ 		};
+ 
+ 		framebuffer_mem: memory@9d400000 {
