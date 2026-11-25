@@ -383,3 +383,50 @@ The first v7 CI run (45122775169) failed at the boot-image step: Ubuntu's `mkboo
 imports a `gki` module its package does not ship. Added `scripts/pack-bootimg.py` and a
 fallback in `make-bootimg.sh`; the output is byte-identical to what `mkbootimg` produced
 (same sha256 as the published asset). CI re-run on the moved tag.
+
+---
+
+# Session 4 — v10 (2026-11-25)
+
+## Turn 19
+
+**User:**
+
+> Also
+>
+>
+> v7.2.3-sdm660-r1 is the mainline kernel version
+>
+> And
+>
+>
+> V6 v5 v9 wast the name I gave to the source edit I made I mean claude made
+>
+>
+> Build this one
+>
+>
+> Put on GitHub as the same way as before
+>
+> NEW FILES ADDED: conversation_2d63d8f2-3a34-45da-a530-e16083cad4d1.zip
+>
+> mainline-port-v10.zip
+
+**Assistant (summary):**
+
+- Read `mainline-port-v10.zip`: patch 0005 (tulip ramoops on the stock layout), a rewritten
+  test init that survives a warm reboot, `ignore_loglevel panic=5` in the default cmdline,
+  and `docs/FIRST_BOOT_TEST.md`.
+- Applied all four to `INFIYOP/sdm660-android-kernel` on top of v9. Pointed the init's
+  dangling `docs/PSTORE_LOGGING.md` reference at the doc that does exist.
+- Verified patches 0001–0005 apply cleanly to `sdm660-mainline/linux` @ `qcom-sdm660-7.2.y`
+  (0005 lands with a +9 line offset after 0004, as expected).
+- Built with Neutron Clang 06092026 (clang 24.0.0git) in a fresh clone: 0 warnings,
+  688 modules, `Image.gz` 13,240,704 B. Tulip's DTB changed (`f9e2fe80…`); both whyred
+  DTBs hash identically to v9, which shows only tulip was affected.
+- Decompiled the built DTBs and confirmed the new ramoops values, built both boot images
+  and confirmed both PASS `verify-bootimg.py` with the stock LK ids.
+- Ran both CI workflows: `build-kernel-neutron` (45538359182) succeeded and reproduced the
+  build; `build-kernel` (45538355221) is the GCC check.
+- Published `v10-testing` as a **pre-release**, with the build assets, release notes,
+  first-boot procedure and this transcript.

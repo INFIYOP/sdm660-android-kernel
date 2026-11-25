@@ -44,6 +44,8 @@ JOURNAL.md                   running log - update after every session
 docs/RELEASE-NOTES.md        release notes for v7.2.3-sdm660-r1
 docs/RELEASE-NOTES-v5-testing.md  notes for the v5-testing pre-release
 docs/RELEASE-NOTES-v7-testing.md  notes for the v7-testing pre-release (LK ids, boot images)
+docs/RELEASE-NOTES-v9-testing.md  notes for the v9-testing pre-release (first Neutron Clang build)
+docs/RELEASE-NOTES-v10-testing.md notes for the v10-testing pre-release (pstore-readable boot test)
 docs/SESSION-NOTES.md        what was done, how, and what broke
 docs/CHAT-TRANSCRIPT.md      condensed transcript of the working session
 docs/COMPILE-AGENT-REPORT.md results of the v5 task list: lint, fetch, modules, checkpatch

@@ -69,3 +69,18 @@
 - v9 archive referenced scripts/verify-bootimg.py but did not ship it; wrote it (pure
   Python FDT parse, no dtc dependency).
 - Neutron installer needs zstd and bsdtar on the host; kernel build needs flex/bison/bc.
+
+## 2026-11-25 - v10: pstore-readable first-boot test
+- Patch 0005: tulip ramoops moved to the stock layout (0xa0000000, 4 MB, console 2 MB,
+  pmsg 2 MB, no dmesg records) so a 4.19 kernel can read the mainline log after a warm
+  reboot. whyred already had this layout; its DTBs hash identically to v9.
+- Test init rewritten: mkdir+mount /dev /proc /sys first (the old one mounted into
+  non-existent dirs, so /dev/console never opened), log to kmsg+console+tty0, print
+  /proc/version and /proc/cmdline, 60 s countdown, warm restart (POWER_OFF_AT_END to opt out).
+- make-bootimg.sh default cmdline adds ignore_loglevel panic=5.
+- Added docs/FIRST_BOOT_TEST.md.
+- Build: Neutron Clang 06092026 (clang 24.0.0git), LLVM=1, fresh clone, patches 0001-0005.
+  0 warnings/0 errors, Image.gz 13,240,704 B, 688 modules, tulip DTB f9e2fe80 (changed),
+  whyred DTBs identical to v9. Both boot images PASS verify-bootimg.py.
+- CI: build-kernel 45538355221 (GCC) and build-kernel-neutron 45538359182 (clang, success).
+- Published v10-testing as a pre-release.
